@@ -51,7 +51,7 @@
       <div class="logo">MH</div>
       <div>
         <h1>Marque um horario de consulta</h1>
-        <p class="lead">Página simples para informações e registro manual/rápido de horários — design limpo para uso local.</p>
+        <p class="lead">Página para teste e informações / registro manual/rápido de horários</p>
       </div>
     </header>
 
@@ -84,7 +84,7 @@
           <!--<div class="stat"><div class="small">Total de marcações</div><div id="total">0</div></div>
           <div class="stat"><div class="small">Última marcação</div><div id="last">—</div></div>
           <div class="stat"><div class="small">Fuso</div><div>America/Sao_Paulo</div></div>-->
-          <p>sadasdasd</p>
+          <p>caso tenha goste marque um consulta enviando mensagem no seguinte email: linka.chained@gmail.com</p>
         </div>
 
         <div style="height:12px"></div>
@@ -96,9 +96,105 @@
       </aside>
     </div>
 
-    <footer>Feito para seu TCC — diga se quer exportar em CSV ou ligar ao ESP32.</footer>
+    <footer>Feito pela equipe.</footer>
   </div>
  
+
+<script>
+    const listEl = document.getElementById('list');
+    const totalEl = document.getElementById('total');
+    const lastEl = document.getElementById('last');
+    const nameInput = document.getElementById('name');
+    const timeInput = document.getElementById('time');
+    const markNowBtn = document.getElementById('markNow');
+    const addManualBtn = document.getElementById('addManual');
+    const clearBtn = document.getElementById('clear');
+
+    let items = [];
+
+    function formatBR(date) {
+        const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return new Intl.DateTimeFormat('pt-BR', {
+            ...opts,
+            timeZone: 'America/Sao_Paulo'
+        }).format(date);
+    }
+
+    function addItem(name, date) {
+        const id = Date.now();
+        items.unshift({ id, name, date });
+        render();
+    }
+
+    function render() {
+        listEl.innerHTML = '';
+
+        items.forEach(it => {
+            const el = document.createElement('div');
+            el.className = 'item';
+
+            el.innerHTML = `
+                <div class="meta">
+                    <div class="badge">${it.name || '—'}</div>
+                    <div class="small">
+                        ${new Intl.DateTimeFormat('pt-BR', {
+                            dateStyle: 'short',
+                            timeStyle: 'medium',
+                            timeZone: 'America/Sao_Paulo'
+                        }).format(it.date)}
+                    </div>
+                </div>
+                <div class="time">${formatBR(it.date)}</div>
+            `;
+
+            listEl.appendChild(el);
+        });
+
+        totalEl.textContent = items.length;
+        lastEl.textContent = items.length ? formatBR(items[0].date) : '—';
+    }
+
+    markNowBtn.addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        addItem(name, new Date());
+        nameInput.value = '';
+        timeInput.value = '';
+    });
+
+    addManualBtn.addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        const t = timeInput.value; // "HH:MM"
+
+        if (!t) {
+            alert('Escolha um horário ou use Marcar agora.');
+            return;
+        }
+
+        const parts = t.split(':');
+        const now = new Date();
+        const d = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            parseInt(parts[0]),
+            parseInt(parts[1]),
+            0
+        );
+
+        addItem(name, d);
+        nameInput.value = '';
+        timeInput.value = '';
+    });
+
+    clearBtn.addEventListener('click', () => {
+        if (!confirm('Limpar todas as marcações?')) return;
+        items = [];
+        render();
+    });
+
+    // Item inicial de demonstração
+    addItem('Marcos', new Date());
+</script>
 
 </body>
 </html>
